@@ -1,0 +1,33 @@
+{
+	"admin/status/ipping": {
+		"title": "IP Ping Monitor",
+		"order": 65,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [
+				"luci-app-ipping"
+			],
+			"uci": {
+				"ipping": true
+			}
+		}
+	},
+	"admin/status/ipping/monitor": {
+		"title": "IP Ping Monitor",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "ipping/monitor"
+		}
+	},
+	"admin/status/ipping/settings": {
+		"title": "Settings",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "ipping/settings"
+		}
+	}
+}

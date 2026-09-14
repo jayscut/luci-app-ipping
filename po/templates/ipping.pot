@@ -1,0 +1,297 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: luci-app-ipping\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "1 hour"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "6 hours"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "24 hours"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "3 days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "7 days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "30 days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "90 days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "180 days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "1 year"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "data reader failed"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Checking…"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Collector running"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Service running, collection disabled"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Service stopped"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Status unknown"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Service control failed: %s"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "No ping targets configured. Add targets in the settings below."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Failed to read monitoring data: %s"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "No data in this time range yet."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Latest"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Average"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Max"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Loss"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Samples"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Latency Monitor"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "min/max range"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "average RTT"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "packet loss"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Settings"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "The collector re-reads the configuration every round, changes apply automatically within a minute."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "General Settings"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Enable collector"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Ping interval (seconds)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Rounds start aligned to full minutes. 60 = one round per minute, larger values sample less often."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Pings per round"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Ping timeout (seconds)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Packet size (bytes)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Data directory"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Where the binary data files are stored. A tmpfs path (default /tmp/ipping-data) avoids flash wear but loses data on reboot. Point this to persistent storage (e.g. /etc/ipping-data or a USB mount) to keep history, at the cost of flash writes."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Minute data retention (minutes)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "10080 = 7 days. Roughly 11 KiB per target per day."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Hourly data retention (hours)"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "8760 = 365 days. Roughly 7.3 KiB per target per month."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Ping Targets"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Data files are kept per target name (or host). Renaming a target starts a new data set."
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Enabled"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Display name"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "e.g. Gateway"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Host / IP address"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "IP Ping Monitor"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Start"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Stop"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Restart"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Avg"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Min"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Graph"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Calendar"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "90 days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Operational"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Degraded"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Outage"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "No data"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Uptime"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Month uptime"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "90-day uptime"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Days with data"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Outage days"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Worst day"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Recorded hours"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Pings"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "loss"
+msgstr ""
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Monitor"
+msgstr ""

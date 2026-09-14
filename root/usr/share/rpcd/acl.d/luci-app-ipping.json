@@ -1,0 +1,17 @@
+{
+	"luci-app-ipping": {
+		"description": "Grant access to LuCI IP Ping Monitor",
+		"read": {
+			"uci": [ "ipping" ],
+			"file": {
+				"/usr/libexec/ipping/ipping-cat": [ "exec" ]
+			}
+		},
+		"write": {
+			"uci": [ "ipping" ],
+			"file": {
+				"/etc/init.d/ipping": [ "exec" ]
+			}
+		}
+	}
+}

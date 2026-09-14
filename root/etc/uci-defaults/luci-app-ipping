@@ -1,0 +1,32 @@
+#!/bin/sh
+# uci-defaults for luci-app-ipping
+# Creates the default config on install (never overwrites an existing one)
+# and enables the collector at boot.
+
+if [ ! -s /etc/config/ipping ]; then
+	cat > /etc/config/ipping <<'EOF'
+config ipping 'global'
+	option enabled '1'
+	option interval '60'
+	option count '5'
+	option timeout '2'
+	option size '56'
+	option dbdir '/tmp/ipping-data'
+	option minute_retention '10080'
+	option hour_retention '8760'
+
+config target
+	option name 'Gateway'
+	option host '192.168.1.1'
+	option enabled '1'
+
+config target
+	option name 'Google'
+	option host '8.8.8.8'
+	option enabled '1'
+EOF
+fi
+
+[ -x /etc/init.d/ipping ] && /etc/init.d/ipping enable
+
+exit 0

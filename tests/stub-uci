@@ -1,0 +1,114 @@
+#!/bin/sh
+# Minimal `uci` replacement for host-side testing of luci-app-ipping.
+# Supports: uci [-c DIR] [-q] get <config>.<path>
+#           uci [-c DIR] [-q] show <config>
+# <path> is <section> or <section>.<option>; sections may be named or
+# anonymous (@type[index]). Not a full UCI implementation.
+
+qflag=0
+cfgdir="/etc/config"
+verb=""
+key=""
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-c) cfgdir="$2"; shift 2 ;;
+		-q) qflag=1; shift ;;
+		-*) shift ;;
+		*) if [ -z "$verb" ]; then verb="$1"; else key="$1"; fi; shift ;;
+	esac
+done
+
+fail() {
+	[ "$qflag" = 1 ] || echo "uci: entry not found" >&2
+	exit 1
+}
+
+[ -n "$verb" ] || fail
+case "$verb" in
+	get|show) ;;
+	*) fail ;;
+esac
+
+cfg="${key%%.*}"
+[ -n "$cfg" ] || fail
+[ -f "$cfgdir/$cfg" ] || fail
+
+awk -v verb="$verb" -v key="$key" -v cfg="$cfg" '
+	function unq(s,    q) {
+		q = sprintf("%c", 39)
+		if (substr(s, 1, 1) == q) s = substr(s, 2)
+		if (substr(s, length(s), 1) == q) s = substr(s, 1, length(s) - 1)
+		return s
+	}
+	function first_token(s) { sub(/[\t ].*/, "", s); return s }
+	function after_token(s) { sub(/^[\t ]*[^\t ]+[\t ]*/, "", s); return s }
+	/^[\t ]*config[\t ]/ {
+		rest = after_token($0)
+		type = first_token(rest)
+		if (rest ~ /[\t ]/) {
+			nm = unq(after_token(rest))
+		} else {
+			nm = sprintf("@%s[%d]", type, cnt[type]++)
+		}
+		sect_order[++nsect] = nm
+		sect_type[nm] = type
+		next
+	}
+	/^[\t ]*option[\t ]/ {
+		if (nm == "") next
+		rest = after_token($0)
+		k = first_token(rest)
+		opt[nm "." k] = unq(after_token(rest))
+		next
+	}
+	function fail_exit() { exit 3 }
+	END {
+		rest = key
+		sub(/^[^.]*\./, "", rest)
+		if (verb == "show") {
+			for (i = 1; i <= nsect; i++)
+				printf "%s.%s=%s\n", cfg, sect_order[i], sect_type[sect_order[i]]
+			exit 0
+		}
+		if (verb != "get") fail_exit()
+		if (rest ~ /^@/) {
+			sub(/^@/, "", rest)
+			tsel = first_token(rest)            # e.g. "target[0]"
+			idx = tsel; sub(/\[.*/, "", idx)
+			inx = tsel; sub(/^[^[]*\[/, "", inx); sub(/\].*/, "", inx)
+			# optional ".option" suffix (avoid \] in bracket exprs: busybox awk quirk)
+			optname = ""
+			if (rest ~ /\./) {
+				optname = rest
+				sub(/^[^.]*\./, "", optname)
+			}
+			k = 0; found = ""
+			for (i = 1; i <= nsect; i++) {
+				nm = sect_order[i]
+				if (sect_type[nm] == idx) {
+					if (k == inx + 0) { found = nm; break }
+					k++
+				}
+			}
+			if (found == "") fail_exit()
+			secname = found
+		} else {
+			secname = rest
+			sub(/\..*/, "", secname)
+			optname = ""
+			if (rest ~ /\./) {
+				optname = rest
+				sub(/^[^.]*\./, "", optname)
+			}
+		}
+		seen = 0
+		for (i = 1; i <= nsect; i++) if (sect_order[i] == secname) seen = 1
+		if (!seen) fail_exit()
+		if (optname == "") {
+			print sect_type[secname]
+			exit 0
+		}
+		if (!((secname "." optname) in opt)) fail_exit()
+		print opt[secname "." optname]
+	}
+' "$cfgdir/$cfg" || fail

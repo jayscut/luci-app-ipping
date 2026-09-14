@@ -1,0 +1,89 @@
+name: Build packages
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - openwrt: "23.05.5"
+          - openwrt: "24.10.2"
+          - openwrt: "25.12.5"
+    name: build ${{ matrix.openwrt }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential flex bison gawk gettext git \
+            libncurses-dev libssl-dev rsync unzip zlib1g-dev file wget zstd xz-utils
+
+      - name: Download OpenWrt SDK
+        run: |
+          base="https://downloads.openwrt.org/releases/${{ matrix.openwrt }}/targets/x86/64"
+          sdk=$(curl -s "$base/" | grep -o 'openwrt-sdk-[^"<]*\.tar\.\(xz\|zst\)' | head -n1)
+          test -n "$sdk" || { echo "SDK not found for ${{ matrix.openwrt }}"; exit 1; }
+          echo "SDK file: $sdk"
+          curl -sSL "$base/$sdk" -o /tmp/sdk.tar
+          mkdir sdk
+          case "$sdk" in
+            *.tar.zst) zstd -d /tmp/sdk.tar --stdout | tar -x -C sdk --strip-components=1 ;;
+            *)         tar xf /tmp/sdk.tar -C sdk --strip-components=1 ;;
+          esac
+
+      - name: Install feeds
+        working-directory: sdk
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Copy package into SDK
+        run: |
+          cd sdk
+          mkdir -p package/luci-app-ipping
+          cp -a "${GITHUB_WORKSPACE}/." package/luci-app-ipping/
+          rm -rf package/luci-app-ipping/.git package/luci-app-ipping/screenshots
+
+      - name: Build
+        working-directory: sdk
+        run: |
+          make defconfig
+          make package/luci-app-ipping/compile -j"$(nproc)" \
+            || make package/luci-app-ipping/compile V=s
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p out
+          find sdk/bin/packages -type f -name "luci-app-ipping*" -exec cp {} out/ \;
+          ls -la out/
+          test -n "$(find out -type f -name 'luci-app-ipping*' | head -n1)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.openwrt }}
+          path: out/
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: out
+
+      - name: Attach packages to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true

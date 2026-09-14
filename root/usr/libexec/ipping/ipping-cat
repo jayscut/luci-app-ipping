@@ -1,0 +1,74 @@
+#!/bin/sh
+# ipping-cat - read access to the ipping binary data files for the LuCI UI
+#
+# Usage:
+#   ipping-cat files <slug> <m|h>
+#       -> "FILES <period> <period> ..."   (period = YYYYMMDD or YYYYMM)
+#   ipping-cat read <slug> <m|h> <period> <startrec> <nrecs>
+#       -> "HEX\n<hex payload>"  or  "B64\n<base64 payload>"  or  "ERR\n<reason>"
+#
+# Record i of a period file is minute i of the UTC day (m, 8 bytes/record)
+# or hour i of the UTC month (h, 10 bytes/record). The payload is capped at
+# 24576 bytes per call so the rpcd/ubus response stays well below the
+# message size limit (a whole day/month file always fits in one call).
+
+libdir="${IPPING_LIB_DIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}"
+. "${libdir}/ipping-lib.sh"
+
+cmd="$1"
+
+case "$cmd" in
+	files)
+		slug="$2"
+		mode="$3"
+		ipp_validate_slug "$slug" || { echo 'FILES'; exit 0; }
+		case "$mode" in m|h) ;; *) echo 'FILES'; exit 0 ;; esac
+		printf 'FILES %s' "$(ipp_list_periods "$mode" "$slug" | tr '\n' ' ')"
+		echo ''
+		;;
+	read)
+		slug="$2"
+		mode="$3"
+		period="$4"
+		start="$5"
+		nrecs="$6"
+		ipp_validate_slug "$slug" || { echo 'ERR'; echo 'bad slug'; exit 0; }
+		case "$mode" in m|h) ;; *) echo 'ERR'; echo 'bad mode'; exit 0 ;; esac
+		case "$mode" in
+			m) case "$period" in ????????) : ;; *) echo 'ERR'; echo 'bad period'; exit 0 ;; esac ;;
+			h) case "$period" in ??????) : ;; *) echo 'ERR'; echo 'bad period'; exit 0 ;; esac ;;
+		esac
+		case "$start" in ''|*[!0-9]*) start=0 ;; esac
+		case "$nrecs" in ''|*[!0-9]*) nrecs=1440 ;; esac
+		[ "$start" -gt 100000 ] && start=100000
+		rs=$(ipp_recsize "$mode")
+		# cap payload at ~24 KiB
+		maxrecs=$((24576 / rs))
+		[ "$nrecs" -gt "$maxrecs" ] && nrecs=$maxrecs
+		[ "$nrecs" -lt 1 ] && nrecs=1
+		f=$(ipp_file "$mode" "$slug" "$period")
+		if [ ! -f "$f" ]; then
+			echo 'HEX'
+			echo ''
+			exit 0
+		fi
+		off=$((start * rs))
+		len=$((nrecs * rs))
+		if h=$(ipp_bin2hex "$f" "$off" "$len"); then
+			echo 'HEX'
+			echo "$h"
+		elif h=$(ipp_bin2b64 "$f" "$off" "$len"); then
+			echo 'B64'
+			echo "$h"
+		else
+			echo 'ERR'
+			echo 'no binary decoder available (need hexdump, od or xxd)'
+		fi
+		;;
+	*)
+		echo 'ERR'
+		echo 'usage: ipping-cat files|read <slug> <m|h> [period startrec nrecs]'
+		exit 1
+		;;
+esac
+exit 0

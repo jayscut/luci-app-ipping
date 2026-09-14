@@ -1,0 +1,297 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: luci-app-ipping\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "1 hour"
+msgstr "1 小时"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "6 hours"
+msgstr "6 小时"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "24 hours"
+msgstr "24 小时"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "3 days"
+msgstr "3 天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "7 days"
+msgstr "7 天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "30 days"
+msgstr "30 天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "90 days"
+msgstr "90 天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "180 days"
+msgstr "180 天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "1 year"
+msgstr "1 年"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "data reader failed"
+msgstr "数据读取失败"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Checking…"
+msgstr "检查中…"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Collector running"
+msgstr "采集器运行中"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Service running, collection disabled"
+msgstr "服务运行中，采集已停用"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Service stopped"
+msgstr "服务已停止"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Status unknown"
+msgstr "状态未知"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Service control failed: %s"
+msgstr "服务控制失败：%s"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "No ping targets configured. Add targets in the settings below."
+msgstr "尚未配置 ping 目标，请在下方设置中添加。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Failed to read monitoring data: %s"
+msgstr "读取监控数据失败：%s"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "No data in this time range yet."
+msgstr "该时间范围内暂无数据。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Latest"
+msgstr "最新"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Average"
+msgstr "平均"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Max"
+msgstr "最大"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Loss"
+msgstr "丢包率"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Samples"
+msgstr "采样数"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Latency Monitor"
+msgstr "延迟监控"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "min/max range"
+msgstr "最小/最大区间"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "average RTT"
+msgstr "平均延迟"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "packet loss"
+msgstr "丢包"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Settings"
+msgstr "设置"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "The collector re-reads the configuration every round, changes apply automatically within a minute."
+msgstr "采集器每轮都会重新读取配置，更改会在一分钟内自动生效。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "General Settings"
+msgstr "常规设置"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Enable collector"
+msgstr "启用采集器"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Ping interval (seconds)"
+msgstr "Ping 间隔（秒）"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Rounds start aligned to full minutes. 60 = one round per minute, larger values sample less often."
+msgstr "采集轮按整分钟对齐开始。60 表示每分钟一轮，更大的值表示更低的采样频率。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Pings per round"
+msgstr "每轮 Ping 次数"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Ping timeout (seconds)"
+msgstr "Ping 超时（秒）"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Packet size (bytes)"
+msgstr "数据包大小（字节）"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Data directory"
+msgstr "数据目录"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Where the binary data files are stored. A tmpfs path (default /tmp/ipping-data) avoids flash wear but loses data on reboot. Point this to persistent storage (e.g. /etc/ipping-data or a USB mount) to keep history, at the cost of flash writes."
+msgstr "二进制数据文件的存储位置。默认 /tmp/ipping-data（内存盘）可避免闪存磨损，但重启后数据丢失；指向持久存储（如 /etc/ipping-data 或 U 盘挂载点）可保留历史数据，但会产生闪存写入。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Minute data retention (minutes)"
+msgstr "分钟数据保留时长（分钟）"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "10080 = 7 days. Roughly 11 KiB per target per day."
+msgstr "10080 = 7 天。每个目标每天约 11 KiB。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Hourly data retention (hours)"
+msgstr "小时数据保留时长（小时）"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "8760 = 365 days. Roughly 7.3 KiB per target per month."
+msgstr "8760 = 365 天。每个目标每月约 7.3 KiB。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Ping Targets"
+msgstr "Ping 目标"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Data files are kept per target name (or host). Renaming a target starts a new data set."
+msgstr "数据文件按目标名称（或主机）保存。修改目标名称将开始新的数据集。"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Enabled"
+msgstr "启用"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Display name"
+msgstr "显示名称"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "e.g. Gateway"
+msgstr "例如：网关"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Host / IP address"
+msgstr "主机 / IP 地址"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "IP Ping Monitor"
+msgstr "IP Ping 监控"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Start"
+msgstr "启动"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Stop"
+msgstr "停止"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Restart"
+msgstr "重启"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Avg"
+msgstr "平均"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Min"
+msgstr "最小"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Graph"
+msgstr "图表"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Calendar"
+msgstr "月历"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "90 days"
+msgstr "近 90 天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Operational"
+msgstr "正常"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Degraded"
+msgstr "降级"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Outage"
+msgstr "中断"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "No data"
+msgstr "无数据"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Uptime"
+msgstr "可用率"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Month uptime"
+msgstr "本月可用率"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "90-day uptime"
+msgstr "90 天可用率"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Days with data"
+msgstr "有数据的天数"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Outage days"
+msgstr "中断天数"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Worst day"
+msgstr "最差的一天"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Recorded hours"
+msgstr "记录小时数"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Pings"
+msgstr "Ping 数"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "loss"
+msgstr "丢包"
+
+#: htdocs/luci-static/resources/view/ipping/overview.js
+msgid "Monitor"
+msgstr "监控"

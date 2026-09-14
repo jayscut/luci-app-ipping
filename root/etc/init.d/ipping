@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+# luci-app-ipping init script
+
+START=99
+STOP=10
+USE_PROCD=1
+
+NAME=ipping
+PROG=/usr/libexec/ipping/ippingd
+
+start_service() {
+	procd_open_instance
+	procd_set_param command /bin/sh "$PROG"
+	procd_set_param respawn 3600 5 5
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+	procd_close_instance
+}
+
+service_triggers() {
+	# config changes are picked up by the daemon every round; a reload
+	# restarts the collector so e.g. an interval change takes effect at once
+	procd_add_reload_trigger "$NAME"
+}
+
+reload_service() {
+	restart
+}

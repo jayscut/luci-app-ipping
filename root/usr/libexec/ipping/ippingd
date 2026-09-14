@@ -1,0 +1,178 @@
+#!/bin/sh
+# ippingd - periodic ping latency collector for luci-app-ipping
+#
+# Runs under procd. Once per interval (default 60s, aligned to minute
+# boundaries) it pings every enabled target and writes one fixed-size binary
+# record per target. Record position (per-day file + offset) encodes the
+# time, so skipped rounds and downtime simply leave holes.
+#
+# On every hour boundary the closed hour of minute data is aggregated into
+# the monthly hourly file (catch-up aware), and period files outside the
+# retention window are deleted. The UCI config is re-read every round, so
+# changes made in LuCI apply without restarting the service.
+
+IPPING_PING="${IPPING_PING:-ping}"
+
+libdir="${IPPING_LIB_DIR:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}"
+. "${libdir}/ipping-lib.sh"
+
+G_ENABLED=1
+C_INTERVAL=60
+C_COUNT=5
+C_TIMEOUT=2
+C_SIZE=56
+R_MINUTES=10080
+R_HOURS=8760
+LAST_SLOT=''
+LAST_HOUR=''
+
+# cfg_int <section.opt> <default> <min> <max> -> stdout
+cfg_int() {
+	local v
+	v=$(uci -c "$IPPING_UCI_DIR" -q get "ipping.$1")
+	case "$v" in ''|*[!0-9]*) v="$2" ;; esac
+	[ "$v" -lt "$3" ] && v="$3"
+	[ "$v" -gt "$4" ] && v="$4"
+	printf '%s' "$v"
+}
+
+load_config() {
+	uci -c "$IPPING_UCI_DIR" -q show ipping >/dev/null 2>&1 || return 1
+	G_ENABLED=$(uci -c "$IPPING_UCI_DIR" -q get ipping.global.enabled)
+	G_ENABLED=${G_ENABLED:-1}
+	[ "$G_ENABLED" = 0 ] && G_ENABLED=0 || G_ENABLED=1
+	C_INTERVAL=$(cfg_int global.interval 60 60 3600)
+	C_COUNT=$(cfg_int global.count 5 1 20)
+	C_TIMEOUT=$(cfg_int global.timeout 2 1 10)
+	C_SIZE=$(cfg_int global.size 56 8 1400)
+	R_MINUTES=$(cfg_int global.minute_retention 10080 10 5270400)
+	R_HOURS=$(cfg_int global.hour_retention 8760 24 175200)
+	return 0
+}
+
+ipp_targets() {
+	local i=0 host name en slug seen='|'
+	while uci -c "$IPPING_UCI_DIR" -q get "ipping.@target[$i]" >/dev/null 2>&1; do
+		host=$(uci -c "$IPPING_UCI_DIR" -q get "ipping.@target[$i].host")
+		name=$(uci -c "$IPPING_UCI_DIR" -q get "ipping.@target[$i].name")
+		en=$(uci -c "$IPPING_UCI_DIR" -q get "ipping.@target[$i].enabled")
+		en=${en:-1}
+		if [ "$en" = 1 ] && [ -n "$host" ]; then
+			slug=$(ipp_slug "${name:-$host}")
+			case "$seen" in
+				*"|$slug|"*) i=$((i + 1)); continue ;;
+			esac
+			seen="$seen$slug|"
+			printf '%s\t%s\t%s\n' "$slug" "$host" "${name:-$host}"
+		fi
+		i=$((i + 1))
+	done
+}
+
+# ipp_ping_round <host> -> sets P_MIN P_AVG P_MAX P_SENT P_LOST
+ipp_ping_round() {
+	local host="$1" out sent recv rtts
+	case "$host" in
+		*:*)
+			out=$($IPPING_PING -6 -n -c "$C_COUNT" -W "$C_TIMEOUT" -s "$C_SIZE" \
+				-w $((C_COUNT * C_TIMEOUT + 2)) "$host" 2>/dev/null)
+			case "$out" in
+				*transmitted*) : ;;
+				*)
+					if command -v ping6 >/dev/null 2>&1; then
+						out=$(ping6 -n -c "$C_COUNT" -W "$C_TIMEOUT" -s "$C_SIZE" "$host" 2>/dev/null)
+					else
+						out=''
+					fi
+					;;
+			esac
+			;;
+		*)
+			out=$($IPPING_PING -n -c "$C_COUNT" -W "$C_TIMEOUT" -s "$C_SIZE" \
+				-w $((C_COUNT * C_TIMEOUT + 2)) "$host" 2>/dev/null)
+			;;
+	esac
+	sent=$(printf '%s\n' "$out" | sed -n 's/^\([0-9][0-9]*\) packets transmitted.*/\1/p' | head -n 1)
+	recv=$(printf '%s\n' "$out" | sed -n 's/^[0-9][0-9]* packets transmitted, *\([0-9][0-9]*\)\( packets\)\{0,1\} received.*/\1/p' | head -n 1)
+	rtts=$(printf '%s\n' "$out" | sed -n 's/.*time=\([0-9][0-9.]*\) *ms.*/\1/p' | tr '\n' ' ')
+
+	if [ -z "$sent" ] && [ -z "$recv" ]; then
+		recv=$(printf '%s' "$rtts" | wc -w)
+	fi
+	[ -n "$sent" ] || sent=0
+
+	eval "$(awk -v ts_list="$rtts" -v sent="$sent" -v recv="${recv:-0}" -v count="$C_COUNT" 'BEGIN {
+		n = split(ts_list, a, /[ ]+/)
+		mn = 0; mx = 0; sum = 0; cnt = 0
+		for (i = 1; i <= n; i++) {
+			if (a[i] == "") continue
+			x = a[i] + 0
+			xi = int(x * 10 + 0.5)
+			if (xi <= 0 && a[i] != "0") continue
+			if (xi > 65534) xi = 65534
+			if (cnt == 0 || xi < mn) mn = xi
+			if (xi > mx) mx = xi
+			sum += xi
+			cnt++
+		}
+		if (cnt == 0) { mn = 0; mx = 0 }
+		avg = cnt > 0 ? int(sum / cnt + 0.5) : 0
+		if (sent + 0 <= 0) sent = count
+		lost = sent - recv
+		if (lost < 0) lost = 0
+		if (lost > sent) lost = sent
+		printf "P_MIN=%d P_AVG=%d P_MAX=%d P_SENT=%d P_LOST=%d\n", mn, avg, mx, sent, lost
+	}')"
+}
+
+do_round() { # <slot epoch>
+	local slot="$1" slug host name
+	ipp_targets | while IFS="$(printf '\t')" read -r slug host name; do
+		ipp_ping_round "$host"
+		ipp_write_record m "$slug" "$slot" "$P_MIN" "$P_AVG" "$P_MAX" "$P_SENT" "$P_LOST" \
+			|| ipp_warn "failed to write record for $slug ($host)"
+	done
+}
+
+aggregate_all() {
+	local slug host name rc
+	ipp_targets | while IFS="$(printf '\t')" read -r slug host name; do
+		ipp_aggregate_target "$slug" "$R_MINUTES" "$R_HOURS"
+		rc=$?
+		if [ "$rc" = 2 ]; then
+			ipp_warn "no binary decoder (hexdump/od/xxd) found, hourly aggregation disabled"
+		elif [ "$rc" != 0 ]; then
+			ipp_warn "hourly aggregation failed for $slug (rc=$rc)"
+		fi
+	done
+}
+
+ipp_main() {
+	trap 'exit 0' INT TERM
+	ipp_log "daemon starting"
+	while :; do
+		if load_config && [ "$G_ENABLED" = 1 ]; then
+			mkdir -p "$(ipp_dbdir)" 2>/dev/null
+			now=$(date +%s)
+			slot=$((now - now % 60))
+			if [ "$slot" != "$LAST_SLOT" ]; then
+				if [ $((slot % C_INTERVAL)) -eq 0 ]; then
+					do_round "$slot"
+				fi
+				LAST_SLOT=$slot
+			fi
+			hb=$((slot - slot % 3600))
+			if [ "$hb" != "$LAST_HOUR" ]; then
+				aggregate_all
+				LAST_HOUR=$hb
+			fi
+			sleep $((60 - $(date +%s) % 60 + 1))
+		else
+			sleep 15
+		fi
+	done
+}
+
+if [ "${IPPINGD_NO_MAIN:-0}" != 1 ]; then
+	ipp_main
+fi

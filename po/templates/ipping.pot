@@ -237,10 +237,6 @@ msgid "Calendar"
 msgstr ""
 
 #: htdocs/luci-static/resources/view/ipping/overview.js
-msgid "90 days"
-msgstr ""
-
-#: htdocs/luci-static/resources/view/ipping/overview.js
 msgid "Operational"
 msgstr ""
 

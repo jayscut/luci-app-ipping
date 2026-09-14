@@ -49,11 +49,13 @@ jobs:
       - name: Copy package into SDK
         working-directory: sdk
         run: |
+          set -x
+          pwd
           df -h .
+          command -v rsync tar cp || true
           mkdir -p package/luci-app-ipping
-          rsync -a --exclude '.git' --exclude 'screenshots' \
-            "$GITHUB_WORKSPACE/" package/luci-app-ipping/
-          ls -la package/luci-app-ipping/
+          (cd "$GITHUB_WORKSPACE" && tar --exclude='./.git' --exclude='./screenshots' -cf - .) | tar -xf - -C package/luci-app-ipping
+          ls -la package/luci-app-ipping
 
       - name: Build
         working-directory: sdk

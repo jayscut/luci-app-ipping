@@ -49,6 +49,21 @@ jobs:
           name: build-logs-${{ matrix.arch }}
           path: logs/
 
+      - name: Dump build log tail into job summary
+        if: failure()
+        run: |
+          echo "### Build log tail" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d logs ]; then
+            find logs -type f | while read -r f; do
+              echo "#### $f" >> "$GITHUB_STEP_SUMMARY"
+              echo '```' >> "$GITHUB_STEP_SUMMARY"
+              tail -n 120 "$f" >> "$GITHUB_STEP_SUMMARY"
+              echo '```' >> "$GITHUB_STEP_SUMMARY"
+            done
+          else
+            echo "no logs dir" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build

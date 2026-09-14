@@ -5,6 +5,10 @@ on:
     tags: [ "v*" ]
   workflow_dispatch:
 
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
@@ -52,9 +56,10 @@ jobs:
           set -x
           pwd
           df -h .
-          command -v rsync tar cp || true
+          echo "workspace: ${{ github.workspace }}"
           mkdir -p package/luci-app-ipping
-          (cd "$GITHUB_WORKSPACE" && tar --exclude='./.git' --exclude='./screenshots' -cf - .) | tar -xf - -C package/luci-app-ipping
+          (cd "${{ github.workspace }}" && tar --exclude='./.git' --exclude='./screenshots' -cf - .) | tar -xf - -C package/luci-app-ipping
+          test -f package/luci-app-ipping/Makefile
           ls -la package/luci-app-ipping
 
       - name: Build

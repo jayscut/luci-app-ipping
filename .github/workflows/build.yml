@@ -27,6 +27,7 @@ jobs:
         uses: openwrt/gh-action-sdk@v5
         env:
           ARCH: ${{ matrix.arch }}
+          CONTAINER: ghcr.io/openwrt/sdk
           FEEDNAME: packages_ci
           PACKAGES: luci-app-ipping
           NO_SHFMT_CHECK: 1

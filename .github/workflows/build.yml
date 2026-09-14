@@ -22,6 +22,8 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Build package
         uses: openwrt/gh-action-sdk@v5

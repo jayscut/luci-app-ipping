@@ -26,6 +26,16 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Arrange feed layout
+        run: |
+          # the SDK's feed scan requires the package Makefile to live in a
+          # subdirectory of the feed root (xxx/Makefile), not at the top level
+          mkdir -p feed/luci-app-ipping
+          for item in Makefile LICENSE README.md htdocs po root tests tools; do
+            [ -e "$item" ] && mv "$item" feed/luci-app-ipping/
+          done
+          find feed -maxdepth 2 | head -10
+
       - name: Build package
         uses: openwrt/gh-action-sdk@v5
         env:

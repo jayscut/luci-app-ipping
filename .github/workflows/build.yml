@@ -118,10 +118,11 @@ jobs:
                 job_id: j.id
               });
               let text = String(log.data);
-              const lines = text.split('\n').filter(l =>
-                /error|Error|ERROR|failed|Failed|FAILED|not found|No such|cannot|Cannot/.test(l));
-              body += '\n#### ' + j.name + ' (error-ish lines, last 80)\n```\n' +
-                lines.slice(-80).join('\n').slice(-20000) + '\n```\n';
+              const lines = text.split('\n');
+              const idx = lines.map(l => /toplevel\.mk|Error 2|Collecting package info/.test(l)).lastIndexOf(true);
+              const tailLines = (idx >= 0 ? lines.slice(Math.max(0, idx - 120), idx + 5) : lines.slice(-150));
+              body += '\n#### ' + j.name + ' (raw log around failure)\n```\n' +
+                tailLines.join('\n').slice(-20000) + '\n```\n';
             }
             await github.rest.issues.create({
               owner: context.repo.owner,

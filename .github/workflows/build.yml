@@ -20,6 +20,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -97,6 +98,37 @@ jobs:
           else
             echo "no logs dir" >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Paste job logs into an issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId
+            });
+            let body = 'Job logs for run `' + context.runId + '`\n';
+            for (const j of jobs.data.jobs) {
+              if (j.conclusion !== 'failure') continue;
+              const log = await github.rest.actions.downloadJobLogsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                job_id: j.id
+              });
+              let text = String(log.data);
+              const lines = text.split('\n').filter(l =>
+                /error|Error|ERROR|failed|Failed|FAILED|not found|No such|cannot|Cannot/.test(l));
+              body += '\n#### ' + j.name + ' (error-ish lines, last 80)\n```\n' +
+                lines.slice(-80).join('\n').slice(-20000) + '\n```\n';
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: ('CI failure: run ' + context.runId).slice(0, 90),
+              body: body.slice(0, 60000) || 'no captured errors'
+            });
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

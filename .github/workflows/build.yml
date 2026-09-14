@@ -37,19 +37,23 @@ jobs:
             *.tar.zst) zstd -d /tmp/sdk.tar --stdout | tar -x -C sdk --strip-components=1 ;;
             *)         tar xf /tmp/sdk.tar -C sdk --strip-components=1 ;;
           esac
+          df -h .
 
       - name: Install feeds
         working-directory: sdk
         run: |
           ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          ./scripts/feeds install luci-base
+          df -h .
 
       - name: Copy package into SDK
+        working-directory: sdk
         run: |
-          cd sdk
+          df -h .
           mkdir -p package/luci-app-ipping
-          cp -a "${GITHUB_WORKSPACE}/." package/luci-app-ipping/
-          rm -rf package/luci-app-ipping/.git package/luci-app-ipping/screenshots
+          rsync -a --exclude '.git' --exclude 'screenshots' \
+            "$GITHUB_WORKSPACE/" package/luci-app-ipping/
+          ls -la package/luci-app-ipping/
 
       - name: Build
         working-directory: sdk
